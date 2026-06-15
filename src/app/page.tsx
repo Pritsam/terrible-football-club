@@ -1,64 +1,53 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
+import { Trophy } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { SiteHeader } from "@/components/site-header";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+
+  if (!data.user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name, email")
+    .eq("id", data.user.id)
+    .single();
+
+  const displayName = profile?.name ?? profile?.email ?? data.user.email;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
+        <div className="animate-fade-up">
+          <h1 className="font-heading text-3xl tracking-wide text-foreground">
+            Welcome back, {displayName}
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-2 text-muted-foreground">
+            Your leagues, matches, and leaderboard will live here.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:100ms]">
+          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Trophy className="size-6" />
+            </div>
+            <div>
+              <p className="font-heading text-lg tracking-wide text-foreground">
+                No leagues yet
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                League creation and joining are coming soon.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
