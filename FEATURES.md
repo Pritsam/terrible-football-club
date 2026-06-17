@@ -44,11 +44,11 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 - [x] Join league via invite code
 - [x] Join league via invite link (`/join/[code]` style route)
 - [x] Display/copy invite code & invite link (admin view)
-- [ ] League settings: close league (read-only state)
-- [ ] League settings: delete league (cascades per schema trigger)
-- [ ] Membership management: list members, roles
-- [ ] Promote/demote admin (enforcing "at least one admin" rule)
-- [ ] Remove player (preserve historical stats)
+- [x] League settings: close league (read-only state)
+- [x] League settings: delete league (cascades per schema trigger)
+- [x] Membership management: list members, roles
+- [x] Promote/demote admin (enforcing "at least one admin" rule)
+- [x] Remove player (preserve historical stats)
 
 ## 5. Match System
 

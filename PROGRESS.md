@@ -53,9 +53,14 @@ Tracks what's done and what's queued next for the Fantasy League Tracking System
   - `src/app/leagues/[id]/page.tsx` — renders `InvitePanel` for admins
   - `supabase/migrations/20260617000000_join_league_by_invite_code_fn.sql` — `public.join_league_by_invite_code(p_invite_code)` SECURITY DEFINER RPC
 
+- League management phase 3: membership management + league settings
+  - `src/lib/leagues/actions.ts` — `updateLeagueStatus`, `updateMemberRole`, `removeMember` server actions
+  - `src/components/leagues/members-list.tsx` — member list with inline promote/demote/remove (admin only)
+  - `src/components/leagues/league-settings-panel.tsx` — close/reopen/delete league with inline confirmation
+  - `src/app/leagues/[id]/page.tsx` — parallel data fetch for members, renders new components
+
 ## Next up
 
-- League settings: close league, delete league, promote/demote admin, remove player
 - Match system: create match, list matches, match detail
 - Stat submission/approval flow
 - Leaderboard + MVP display
