@@ -1,31 +1,38 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import { signInWithGoogle } from "@/lib/auth/actions";
 
 export function GoogleButton() {
-  const [state, formAction, isPending] = useActionState(
-    signInWithGoogle,
-    undefined,
-  );
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClick = () => {
+    setError(null);
+    startTransition(async () => {
+      const result = await signInWithGoogle();
+      if (result && "error" in result) {
+        setError(result.error);
+      }
+    });
+  };
 
   return (
-    <form action={formAction} className="grid gap-2">
+    <div className="grid gap-2">
       <Button
-        type="submit"
+        type="button"
         variant="outline"
         className="w-full"
         disabled={isPending}
+        onClick={handleClick}
       >
         <GoogleIcon className="size-4" />
         {isPending ? "Redirecting…" : "Continue with Google"}
       </Button>
-      {state && "error" in state ? (
-        <FieldError>{state.error}</FieldError>
-      ) : null}
-    </form>
+      {error ? <FieldError>{error}</FieldError> : null}
+    </div>
   );
 }
 
