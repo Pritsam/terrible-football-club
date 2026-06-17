@@ -6,8 +6,10 @@ import { SiteHeader } from "@/components/site-header";
 import { InvitePanel } from "@/components/leagues/invite-panel";
 import { MembersList } from "@/components/leagues/members-list";
 import { LeagueSettingsPanel } from "@/components/leagues/league-settings-panel";
+import { MatchesSection } from "@/components/matches/matches-section";
 import { createClient } from "@/lib/supabase/server";
 import type { LeagueMember } from "@/components/leagues/members-list";
+import type { MatchSummary } from "@/components/matches/matches-section";
 
 interface LeaguePageProps {
   params: Promise<{ id: string }>;
@@ -23,7 +25,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
     redirect("/login");
   }
 
-  const [leagueResult, membershipResult, membersResult] = await Promise.all([
+  const [leagueResult, membershipResult, membersResult, matchesResult] = await Promise.all([
     supabase
       .from("leagues")
       .select("id, name, status, invite_code, created_by, created_at")
@@ -40,6 +42,11 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
       .select("id, user_id, role, created_at, profiles(name, email, avatar_url)")
       .eq("league_id", id)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("matches")
+      .select("id, match_date")
+      .eq("league_id", id)
+      .order("match_date", { ascending: false }),
   ]);
 
   const league = leagueResult.data;
@@ -51,6 +58,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
 
   const isAdmin = membership.role === "admin";
   const members = (membersResult.data ?? []) as unknown as LeagueMember[];
+  const matches = (matchesResult.data ?? []) as MatchSummary[];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -94,6 +102,17 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         {isAdmin && (
           <InvitePanel inviteCode={league.invite_code as string} />
         )}
+
+        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:100ms]">
+          <CardContent className="py-5">
+            <MatchesSection
+              leagueId={id}
+              matches={matches}
+              isAdmin={isAdmin}
+              isActive={league.status === "active"}
+            />
+          </CardContent>
+        </Card>
 
         <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:150ms]">
           <CardContent className="py-5">

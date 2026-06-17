@@ -59,9 +59,16 @@ Tracks what's done and what's queued next for the Fantasy League Tracking System
   - `src/components/leagues/league-settings-panel.tsx` — close/reopen/delete league with inline confirmation
   - `src/app/leagues/[id]/page.tsx` — parallel data fetch for members, renders new components
 
+- Match system
+  - `src/lib/validations/matches.ts` — `createMatchSchema` (date validation)
+  - `src/lib/matches/actions.ts` — `createMatch`, `updateMatchDate`, `deleteMatch` server actions
+  - `src/components/matches/matches-section.tsx` — match list + inline create form (toggleable, admin + active league only)
+  - `src/components/matches/match-actions.tsx` — edit date (inline form) + delete with confirmation
+  - `src/app/leagues/[id]/matches/[matchId]/page.tsx` — match detail page with submissions stub
+  - `src/app/leagues/[id]/page.tsx` — fetches and renders matches section
+
 ## Next up
 
-- Match system: create match, list matches, match detail
 - Stat submission/approval flow
 - Leaderboard + MVP display
 - Vitest + React Testing Library (unit), Playwright (E2E)
