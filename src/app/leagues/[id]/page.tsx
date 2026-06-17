@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Shield, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
+import { InvitePanel } from "@/components/leagues/invite-panel";
 import { createClient } from "@/lib/supabase/server";
 
 interface LeaguePageProps {
@@ -21,7 +22,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
 
   const { data: league } = await supabase
     .from("leagues")
-    .select("id, name, status, created_by, created_at")
+    .select("id, name, status, invite_code, created_by, created_at")
     .eq("id", id)
     .single();
 
@@ -81,7 +82,11 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
           </div>
         </div>
 
-        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:100ms]">
+        {isAdmin && (
+          <InvitePanel inviteCode={league.invite_code as string} />
+        )}
+
+        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:200ms]">
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Users className="size-6" />

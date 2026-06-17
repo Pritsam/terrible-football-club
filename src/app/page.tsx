@@ -4,6 +4,7 @@ import { Trophy, Plus, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
+import { JoinLeagueForm } from "@/components/leagues/join-league-form";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
@@ -61,7 +62,7 @@ export default async function HomePage() {
                   No leagues yet
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Create your first league to get started.
+                  Create your first league or join one with an invite code.
                 </p>
               </div>
               <Button asChild className="mt-2">
@@ -100,6 +101,20 @@ export default async function HomePage() {
             ))}
           </ul>
         )}
+
+        <div className="animate-fade-up [animation-delay:300ms]">
+          <Card className="bg-card/80 ring-foreground/10">
+            <CardContent className="flex flex-col gap-4 py-5">
+              <div>
+                <p className="text-sm font-medium text-foreground">Join a league</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Got an invite code from your admin? Enter it here.
+                </p>
+              </div>
+              <JoinLeagueForm />
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );

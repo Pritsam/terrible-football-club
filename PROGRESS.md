@@ -42,9 +42,19 @@ Tracks what's done and what's queued next for the Fantasy League Tracking System
 - `INSERT … RETURNING` on `leagues` triggers SELECT RLS (`is_league_member`) before the membership row exists — solved by using a SECURITY DEFINER function (`create_league`) that inserts both rows atomically, bypassing the bootstrap ordering problem.
 - The original membership bootstrap RLS policy had a self-comparison bug (`m.league_id = m.league_id`) that blocked all first-admin inserts whenever any memberships existed anywhere. Fixed in migration `20260616000000`.
 
+- League management phase 2: invite system
+  - `src/lib/leagues/actions.ts` — `joinLeague` server action using `public.join_league_by_invite_code()` RPC
+  - `src/lib/validations/leagues.ts` — Zod schema for invite code
+  - `src/components/leagues/join-league-form.tsx` — RHF + zodResolver form on dashboard
+  - `src/components/leagues/join-via-link-form.tsx` — join button on `/join/[code]` page
+  - `src/components/leagues/invite-panel.tsx` — admin-only invite code + copy buttons on league detail
+  - `src/app/join/[code]/page.tsx` — invite link landing page (validates code, checks membership, shows join confirmation)
+  - `src/app/page.tsx` — "Join a league" card added to dashboard
+  - `src/app/leagues/[id]/page.tsx` — renders `InvitePanel` for admins
+  - `supabase/migrations/20260617000000_join_league_by_invite_code_fn.sql` — `public.join_league_by_invite_code(p_invite_code)` SECURITY DEFINER RPC
+
 ## Next up
 
-- League management phase 2: join league via invite code/link, display/copy invite code (admin), list members
 - League settings: close league, delete league, promote/demote admin, remove player
 - Match system: create match, list matches, match detail
 - Stat submission/approval flow
