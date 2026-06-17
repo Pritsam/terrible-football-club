@@ -46,6 +46,7 @@ This project runs on **Next.js 16**, which is newer than your training data and 
 - Build mobile-first, responsive, and accessible interfaces.
 - Cover new business logic and reusable components with tests where practical.
 - Do not use any kind of emojis for the comments in the code, if already used, remove them.
+- Remove any temporary files generated after the task for a specific feature implementation is finished.
 
 ## Working with Claude
 

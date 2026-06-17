@@ -41,9 +41,9 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 - [x] Create league (admin becomes first member automatically)
 - [x] List leagues the user belongs to (dashboard)
 - [x] League detail page stub (overview; leaderboard/matches in next PR)
-- [ ] Join league via invite code
-- [ ] Join league via invite link (`/join/[code]` style route)
-- [ ] Display/copy invite code & invite link (admin view)
+- [x] Join league via invite code
+- [x] Join league via invite link (`/join/[code]` style route)
+- [x] Display/copy invite code & invite link (admin view)
 - [ ] League settings: close league (read-only state)
 - [ ] League settings: delete league (cascades per schema trigger)
 - [ ] Membership management: list members, roles

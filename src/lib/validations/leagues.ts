@@ -8,3 +8,13 @@ export const createLeagueSchema = z.object({
 });
 
 export type CreateLeagueInput = z.infer<typeof createLeagueSchema>;
+
+export const joinLeagueSchema = z.object({
+  invite_code: z
+    .string()
+    .min(1, "Invite code is required")
+    .length(8, "Invite code must be 8 characters")
+    .regex(/^[a-f0-9]+$/i, "Invalid invite code format"),
+});
+
+export type JoinLeagueInput = z.infer<typeof joinLeagueSchema>;
