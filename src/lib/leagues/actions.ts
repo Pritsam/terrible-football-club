@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createLeagueSchema, joinLeagueSchema } from "@/lib/validations/leagues";
 
+export type LeagueAdminActionResult = { error: string } | undefined;
+
 export type CreateLeagueActionResult = { error: string } | undefined;
 
 export async function createLeague(
@@ -70,4 +72,95 @@ export async function joinLeague(
   }
 
   redirect(`/leagues/${leagueId as string}`);
+}
+
+export async function updateLeagueStatus(
+  _prevState: LeagueAdminActionResult,
+  formData: FormData,
+): Promise<LeagueAdminActionResult> {
+  const leagueId = formData.get("league_id") as string;
+  const status = formData.get("status") as string;
+
+  if (!leagueId || !["active", "closed", "deleted"].includes(status)) {
+    return { error: "Invalid request." };
+  }
+
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return { error: "Not authenticated." };
+
+  const { error } = await supabase
+    .from("leagues")
+    .update({ status })
+    .eq("id", leagueId);
+
+  if (error) return { error: error.message };
+
+  if (status === "deleted") {
+    redirect("/");
+  }
+  redirect(`/leagues/${leagueId}`);
+}
+
+export async function updateMemberRole(
+  _prevState: LeagueAdminActionResult,
+  formData: FormData,
+): Promise<LeagueAdminActionResult> {
+  const leagueId = formData.get("league_id") as string;
+  const membershipId = formData.get("membership_id") as string;
+  const role = formData.get("role") as string;
+
+  if (!leagueId || !membershipId || !["admin", "player"].includes(role)) {
+    return { error: "Invalid request." };
+  }
+
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return { error: "Not authenticated." };
+
+  const { error } = await supabase
+    .from("league_memberships")
+    .update({ role })
+    .eq("id", membershipId)
+    .eq("league_id", leagueId);
+
+  if (error) {
+    if (error.message.includes("at least one admin")) {
+      return { error: "A league must always have at least one admin." };
+    }
+    return { error: error.message };
+  }
+
+  redirect(`/leagues/${leagueId}`);
+}
+
+export async function removeMember(
+  _prevState: LeagueAdminActionResult,
+  formData: FormData,
+): Promise<LeagueAdminActionResult> {
+  const leagueId = formData.get("league_id") as string;
+  const membershipId = formData.get("membership_id") as string;
+
+  if (!leagueId || !membershipId) {
+    return { error: "Invalid request." };
+  }
+
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return { error: "Not authenticated." };
+
+  const { error } = await supabase
+    .from("league_memberships")
+    .delete()
+    .eq("id", membershipId)
+    .eq("league_id", leagueId);
+
+  if (error) {
+    if (error.message.includes("at least one admin")) {
+      return { error: "Cannot remove the last admin." };
+    }
+    return { error: error.message };
+  }
+
+  redirect(`/leagues/${leagueId}`);
 }
