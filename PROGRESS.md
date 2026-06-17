@@ -27,8 +27,27 @@ Tracks what's done and what's queued next for the Fantasy League Tracking System
 - `zod` is pinned to `4.0.17` (exact) via `dependencies` + `pnpm.overrides`. Newer zod 4.x (4.1+) breaks `@hookform/resolvers@5.4.0`'s `zodResolver` type overloads (`_zod.version.minor` mismatch). Revisit this pin when `@hookform/resolvers` ships a fix.
 - "Continue with Google" is wired to `signInWithOAuth` but needs real Google OAuth credentials (Google Cloud Console + `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID`/`SECRET` env vars) to function.
 - **Hosted Supabase project (`upxtoabbikplrousvuuv`) has no schema applied yet.** `.env.local` now points at it, but the `20260615000000_init_schema.sql` migration has not been run there — auth/profile/league features will fail against it until it's applied (via `supabase link` + `supabase db push`, or by pasting the migration into the hosted SQL Editor).
+- League management phase 1: create league + dashboard listing + league detail stub
+  - `src/lib/leagues/actions.ts` — `createLeague` server action using `public.create_league()` RPC
+  - `src/lib/validations/leagues.ts` — Zod schema for league name
+  - `src/components/leagues/create-league-form.tsx` — RHF + zodResolver form
+  - `src/app/leagues/new/page.tsx` — create league page
+  - `src/app/leagues/[id]/page.tsx` — league detail stub (shows name, status, role)
+  - `src/app/page.tsx` — dashboard rewritten to list user's leagues
+  - `supabase/migrations/20260616000000_fix_membership_bootstrap_policy.sql` — fixed self-comparison bug in RLS
+  - `supabase/migrations/20260616000001_create_league_fn.sql` — `public.create_league(p_name)` SECURITY DEFINER RPC
+
+### Notes / known issues (continued)
+
+- `INSERT … RETURNING` on `leagues` triggers SELECT RLS (`is_league_member`) before the membership row exists — solved by using a SECURITY DEFINER function (`create_league`) that inserts both rows atomically, bypassing the bootstrap ordering problem.
+- The original membership bootstrap RLS policy had a self-comparison bug (`m.league_id = m.league_id`) that blocked all first-admin inserts whenever any memberships existed anywhere. Fixed in migration `20260616000000`.
+
 ## Next up
 
-- Core domain features: league creation/join (invite codes), match creation, stat submission/approval flow, leaderboard + MVP display (backed by the `league_leaderboard` / `match_mvps` views)
+- League management phase 2: join league via invite code/link, display/copy invite code (admin), list members
+- League settings: close league, delete league, promote/demote admin, remove player
+- Match system: create match, list matches, match detail
+- Stat submission/approval flow
+- Leaderboard + MVP display
 - Vitest + React Testing Library (unit), Playwright (E2E)
 - Docker / Docker Compose for local dev (compose file not yet written, though Docker Desktop itself is installed)

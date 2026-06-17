@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -19,8 +18,8 @@ import { login } from "@/lib/auth/actions";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
 export function LoginForm() {
-  const router = useRouter();
-  const [state, formAction, isPending] = useActionState(login, undefined);
+  const [state, formAction] = useActionState(login, undefined);
+  const [isPending, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
@@ -29,70 +28,65 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  useEffect(() => {
-    if (state && "success" in state) {
-      router.push("/");
-      router.refresh();
-    }
-  }, [state, router]);
-
   const onValid = (data: LoginInput) => {
     const formData = new FormData();
     formData.set("email", data.email);
     formData.set("password", data.password);
-    formAction(formData);
+    startTransition(() => formAction(formData));
   };
 
   return (
-    <form onSubmit={handleSubmit(onValid)} noValidate>
-      <FieldGroup>
-        <Field data-invalid={!!errors.email}>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            aria-invalid={!!errors.email}
-            {...register("email")}
-          />
-          <FieldError errors={[errors.email]} />
-        </Field>
+    <FieldGroup>
+      <form onSubmit={handleSubmit(onValid)} noValidate>
+        <FieldGroup>
+          <Field data-invalid={!!errors.email}>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              aria-invalid={!!errors.email}
+              {...register("email")}
+            />
+            <FieldError errors={[errors.email]} />
+          </Field>
 
-        <Field data-invalid={!!errors.password}>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="••••••••"
-            aria-invalid={!!errors.password}
-            {...register("password")}
-          />
-          <FieldError errors={[errors.password]} />
-        </Field>
+          <Field data-invalid={!!errors.password}>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+              aria-invalid={!!errors.password}
+              {...register("password")}
+            />
+            <FieldError errors={[errors.password]} />
+          </Field>
 
-        {state && "error" in state ? (
-          <FieldError>{state.error}</FieldError>
-        ) : null}
+          {state && "error" in state ? (
+            <FieldError>{state.error}</FieldError>
+          ) : null}
 
-        <Field>
-          <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? "Signing in…" : "Sign in"}
-          </Button>
-        </Field>
+          <Field>
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? "Signing in…" : "Sign in"}
+            </Button>
+          </Field>
+        </FieldGroup>
+      </form>
 
-        <FieldSeparator>or</FieldSeparator>
+      <FieldSeparator>or</FieldSeparator>
 
-        <GoogleButton />
+      <GoogleButton />
 
-        <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-primary hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </FieldGroup>
-    </form>
+      <p className="text-center text-sm text-muted-foreground">
+        Don&apos;t have an account?{" "}
+        <Link href="/signup" className="text-primary hover:underline">
+          Sign up
+        </Link>
+      </p>
+    </FieldGroup>
   );
 }
