@@ -52,11 +52,11 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 
 ## 5. Match System
 
-- [ ] Create match (admin only, one per date per league, active leagues only)
-- [ ] List matches in a league
-- [ ] Match detail page (submissions, MVP)
-- [ ] Edit match date (admin)
-- [ ] Delete match (admin) — cascades submissions, recalculates leaderboard/MVPs
+- [x] Create match (admin only, one per date per league, active leagues only)
+- [x] List matches in a league
+- [x] Match detail page (submissions, MVP)
+- [x] Edit match date (admin)
+- [x] Delete match (admin) — cascades submissions, recalculates leaderboard/MVPs
 
 ## 6. Stat Submission & Approval
 
