@@ -34,7 +34,7 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 - [x] `/auth/callback` OAuth callback route
 - [x] Server actions: login, signup, signInWithGoogle, logout
 - [x] Authenticated dashboard placeholder (`/`, welcome + sign-out)
-- [ ] Profile page (view/edit name, avatar)
+- [x] Profile page (view/edit name, avatar)
 
 ## 4. League Management
 
