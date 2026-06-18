@@ -72,10 +72,10 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 
 ## 7. Leaderboard & Stats
 
-- [ ] League leaderboard UI (ranked by final rating, then goals) — backed by `league_leaderboard` view
-- [ ] Player stats display: goals, assists, wins, losses, draws, matches played, total points, final rating, MVP count
-- [ ] Match MVP display — backed by `match_mvps` view
-- [ ] Leaderboard updates reflected immediately after approval/edit/delete/revert
+- [x] League leaderboard UI (ranked by final rating, then goals) — backed by `league_leaderboard` view
+- [x] Player stats display: goals, assists, wins, losses, draws, matches played, total points, final rating, MVP count
+- [x] Match MVP display — backed by `match_mvps` view
+- [x] Leaderboard updates reflected immediately after approval/edit/delete/revert
 
 ## 8. Testing
 
