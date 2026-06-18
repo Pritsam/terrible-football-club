@@ -50,4 +50,24 @@ test.describe("League detail page", () => {
     await expect(page).toHaveURL(/\/leagues\/.+/);
     await expect(page.getByText("Leaderboard")).toBeVisible({ timeout: 8000 });
   });
+
+  test("match detail page shows submissions section", async ({ page }) => {
+    await page.goto("/");
+    const leagueLink = page.locator('a[href^="/leagues/"]:not([href="/leagues/new"])').first();
+    const count = await leagueLink.count();
+    if (count === 0) {
+      test.skip();
+    }
+    await leagueLink.click();
+    await expect(page).toHaveURL(/\/leagues\/.+/);
+
+    const matchLink = page.locator('a[href*="/matches/"]').first();
+    const matchCount = await matchLink.count();
+    if (matchCount === 0) {
+      test.skip();
+    }
+    await matchLink.click();
+    await expect(page).toHaveURL(/\/leagues\/.+\/matches\/.+/);
+    await expect(page.getByText(/All submissions/)).toBeVisible({ timeout: 8000 });
+  });
 });

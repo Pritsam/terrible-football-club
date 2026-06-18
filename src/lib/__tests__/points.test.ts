@@ -118,4 +118,26 @@ describe("getMvps", () => {
     expect(mvps).toHaveLength(1);
     expect(mvps[0].player_id).toBe("solo");
   });
+
+  it("returns all players as MVPs when every stat is identical", () => {
+    const entries = [
+      { player_id: "a", goals: 1, assists: 1, result: "draw" as const },
+      { player_id: "b", goals: 1, assists: 1, result: "draw" as const },
+      { player_id: "c", goals: 1, assists: 1, result: "draw" as const },
+    ];
+    const mvps = getMvps(entries);
+    expect(mvps).toHaveLength(3);
+    expect(mvps.map((m) => m.player_id).sort()).toEqual(["a", "b", "c"]);
+  });
+
+  it("does not include players who are not tied for first", () => {
+    const entries = [
+      { player_id: "a", goals: 3, assists: 0, result: "win" as const },
+      { player_id: "b", goals: 3, assists: 0, result: "win" as const },
+      { player_id: "c", goals: 1, assists: 0, result: "win" as const },
+    ];
+    const mvps = getMvps(entries);
+    expect(mvps).toHaveLength(2);
+    expect(mvps.map((m) => m.player_id).sort()).toEqual(["a", "b"]);
+  });
 });

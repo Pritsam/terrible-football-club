@@ -12,6 +12,23 @@ test.describe("Authentication", () => {
     await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
   });
 
+  test("signup page renders form", async ({ page }) => {
+    await page.goto("/signup");
+    await expect(page.getByText("Create your account")).toBeVisible();
+    await expect(page.locator("#name")).toBeVisible();
+    await expect(page.locator("#email")).toBeVisible();
+    await expect(page.locator("#password")).toBeVisible();
+    await expect(page.getByRole("button", { name: /create account/i })).toBeVisible();
+  });
+
+  test("signup with empty fields shows validation errors", async ({ page }) => {
+    await page.goto("/signup");
+    await page.getByRole("button", { name: /create account/i }).click();
+    await expect(page.getByText("Name is required")).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText("Enter a valid email address")).toBeVisible();
+    await expect(page.getByText(/at least 6 characters/i)).toBeVisible();
+  });
+
   test("login with valid credentials redirects to dashboard", async ({ page }) => {
     await page.goto("/login");
     await page.locator("#email").fill(TEST_EMAIL);

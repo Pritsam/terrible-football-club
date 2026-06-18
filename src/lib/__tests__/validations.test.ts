@@ -142,4 +142,48 @@ describe("createMatchSchema", () => {
     const result = createMatchSchema.safeParse({ match_date: "2026-06" });
     expect(result.success).toBe(false);
   });
+
+  it("rejects date with time component", () => {
+    const result = createMatchSchema.safeParse({ match_date: "2026-06-15T00:00:00Z" });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("submitStatsSchema — boundary values", () => {
+  it("accepts large but valid goal counts", () => {
+    const result = submitStatsSchema.safeParse({ goals: 99, assists: 0, result: "win" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects string inputs for numeric fields", () => {
+    const result = submitStatsSchema.safeParse({ goals: "two", assists: 0, result: "win" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects null result", () => {
+    const result = submitStatsSchema.safeParse({ goals: 0, assists: 0, result: null });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing fields entirely", () => {
+    const result = submitStatsSchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("joinLeagueSchema — boundary values", () => {
+  it("rejects 7-char code (one short)", () => {
+    const result = joinLeagueSchema.safeParse({ invite_code: "a1b2c3d" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects 9-char code (one long)", () => {
+    const result = joinLeagueSchema.safeParse({ invite_code: "a1b2c3d4e" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects code with special characters", () => {
+    const result = joinLeagueSchema.safeParse({ invite_code: "a1b2c3!4" });
+    expect(result.success).toBe(false);
+  });
 });

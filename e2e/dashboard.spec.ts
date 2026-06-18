@@ -31,4 +31,11 @@ test.describe("Dashboard", () => {
   test("shows sign out button in header", async ({ page }) => {
     await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible();
   });
+
+  test("join league with invalid code shows error", async ({ page }) => {
+    const input = page.getByRole("textbox", { name: /invite code/i });
+    await input.fill("xxxxxxxx");
+    await page.getByRole("button", { name: /join league/i }).click();
+    await expect(page.getByText("Invalid invite code format")).toBeVisible({ timeout: 5000 });
+  });
 });
