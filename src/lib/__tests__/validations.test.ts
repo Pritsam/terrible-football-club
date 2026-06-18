@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { submitStatsSchema, rejectSubmissionSchema } from "../validations/submissions";
 import { createLeagueSchema, joinLeagueSchema } from "../validations/leagues";
 import { createMatchSchema } from "../validations/matches";
+import { updateProfileSchema } from "../validations/profile";
 
 describe("submitStatsSchema", () => {
   it("accepts valid input", () => {
@@ -184,6 +185,56 @@ describe("joinLeagueSchema — boundary values", () => {
 
   it("rejects code with special characters", () => {
     const result = joinLeagueSchema.safeParse({ invite_code: "a1b2c3!4" });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("updateProfileSchema", () => {
+  it("accepts a valid name", () => {
+    const result = updateProfileSchema.safeParse({ name: "Jane Smith" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts name with valid avatar URL", () => {
+    const result = updateProfileSchema.safeParse({
+      name: "Jane",
+      avatar_url: "https://example.com/photo.jpg",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts empty string avatar URL (treated as no avatar)", () => {
+    const result = updateProfileSchema.safeParse({ name: "Jane", avatar_url: "" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts missing avatar URL (optional)", () => {
+    const result = updateProfileSchema.safeParse({ name: "Jane" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty name", () => {
+    const result = updateProfileSchema.safeParse({ name: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects name over 100 chars", () => {
+    const result = updateProfileSchema.safeParse({ name: "a".repeat(101) });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts name of exactly 100 chars", () => {
+    const result = updateProfileSchema.safeParse({ name: "a".repeat(100) });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects non-URL avatar string", () => {
+    const result = updateProfileSchema.safeParse({ name: "Jane", avatar_url: "not-a-url" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing name entirely", () => {
+    const result = updateProfileSchema.safeParse({});
     expect(result.success).toBe(false);
   });
 });
