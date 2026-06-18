@@ -67,9 +67,16 @@ Tracks what's done and what's queued next for the Fantasy League Tracking System
   - `src/app/leagues/[id]/matches/[matchId]/page.tsx` — match detail page with submissions stub
   - `src/app/leagues/[id]/page.tsx` — fetches and renders matches section
 
+- Testing (Vitest unit + Playwright E2E)
+  - `vitest.config.ts` — Vitest config with jsdom environment and `@/*` alias
+  - `src/lib/points.ts` — pure-JS point calculation, final rating, and MVP ranking (mirrors DB view logic)
+  - `src/lib/__tests__/points.test.ts` — 22 unit tests for calculatePoints, calculateFinalRating, getMvps
+  - `src/lib/__tests__/validations.test.ts` — 22 unit tests for all Zod validation schemas
+  - `playwright.config.ts` — Playwright config with webServer auto-start and retry on flake
+  - `e2e/auth.spec.ts` — auth E2E: login renders, valid login, invalid login, redirect, logout
+  - `e2e/dashboard.spec.ts` — dashboard E2E: My Leagues heading, New league link, Join card
+  - `e2e/league.spec.ts` — league E2E: create form, validation, invite link page, leaderboard on detail
+
 ## Next up
 
-- Stat submission/approval flow
-- Leaderboard + MVP display
-- Vitest + React Testing Library (unit), Playwright (E2E)
 - Docker / Docker Compose for local dev (compose file not yet written, though Docker Desktop itself is installed)
