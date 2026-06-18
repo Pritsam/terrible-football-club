@@ -4,8 +4,10 @@ import { ArrowLeft, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { MatchActions } from "@/components/matches/match-actions";
+import { MatchMvp } from "@/components/matches/match-mvp";
 import { SubmissionsSection } from "@/components/submissions/submissions-section";
 import type { Submission, MemberProfile } from "@/components/submissions/submissions-section";
+import type { MvpEntry } from "@/components/matches/match-mvp";
 import { createClient } from "@/lib/supabase/server";
 
 interface MatchPageProps {
@@ -32,7 +34,7 @@ export default async function MatchPage({ params }: MatchPageProps) {
     redirect("/login");
   }
 
-  const [leagueResult, membershipResult, matchResult, submissionsResult, membersResult] =
+  const [leagueResult, membershipResult, matchResult, submissionsResult, membersResult, mvpResult] =
     await Promise.all([
       supabase.from("leagues").select("id, name, status").eq("id", leagueId).single(),
       supabase
@@ -49,13 +51,19 @@ export default async function MatchPage({ params }: MatchPageProps) {
         .single(),
       supabase
         .from("stat_submissions")
-        .select("id, player_id, submitted_by, goals, assists, result, status, rejection_reason, profiles!player_id(name, email)")
+        .select(
+          "id, player_id, submitted_by, goals, assists, result, status, rejection_reason, profiles!player_id(name, email)",
+        )
         .eq("match_id", matchId)
         .order("created_at", { ascending: true }),
       supabase
         .from("league_memberships")
         .select("user_id, profiles(name, email)")
         .eq("league_id", leagueId),
+      supabase
+        .from("match_mvps")
+        .select("player_id, points, goals, assists")
+        .eq("match_id", matchId),
     ]);
 
   const league = leagueResult.data;
@@ -71,6 +79,17 @@ export default async function MatchPage({ params }: MatchPageProps) {
 
   const submissions = (submissionsResult.data ?? []) as unknown as Submission[];
   const members = (membersResult.data ?? []) as unknown as MemberProfile[];
+
+  const rawMvps = mvpResult.data ?? [];
+  const mvps: MvpEntry[] = rawMvps.map((mvp) => ({
+    player_id: mvp.player_id,
+    points: mvp.points,
+    goals: mvp.goals,
+    assists: mvp.assists,
+    name:
+      (submissions.find((s) => s.player_id === mvp.player_id)?.profiles?.name as string | null) ??
+      undefined,
+  }));
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -111,6 +130,14 @@ export default async function MatchPage({ params }: MatchPageProps) {
             )}
           </div>
         </div>
+
+        {mvps.length > 0 && (
+          <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:75ms]">
+            <CardContent className="py-5">
+              <MatchMvp mvps={mvps} />
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:100ms]">
           <CardContent className="py-5">

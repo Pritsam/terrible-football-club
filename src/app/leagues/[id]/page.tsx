@@ -1,15 +1,17 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Shield, Users } from "lucide-react";
+import { ArrowLeft, Shield, Trophy, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { InvitePanel } from "@/components/leagues/invite-panel";
 import { MembersList } from "@/components/leagues/members-list";
 import { LeagueSettingsPanel } from "@/components/leagues/league-settings-panel";
 import { MatchesSection } from "@/components/matches/matches-section";
+import { LeaderboardSection } from "@/components/leaderboard/leaderboard-section";
 import { createClient } from "@/lib/supabase/server";
 import type { LeagueMember } from "@/components/leagues/members-list";
 import type { MatchSummary } from "@/components/matches/matches-section";
+import type { LeaderboardEntry } from "@/components/leaderboard/leaderboard-section";
 
 interface LeaguePageProps {
   params: Promise<{ id: string }>;
@@ -25,29 +27,36 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
     redirect("/login");
   }
 
-  const [leagueResult, membershipResult, membersResult, matchesResult] = await Promise.all([
-    supabase
-      .from("leagues")
-      .select("id, name, status, invite_code, created_by, created_at")
-      .eq("id", id)
-      .single(),
-    supabase
-      .from("league_memberships")
-      .select("role")
-      .eq("league_id", id)
-      .eq("user_id", data.user.id)
-      .single(),
-    supabase
-      .from("league_memberships")
-      .select("id, user_id, role, created_at, profiles(name, email, avatar_url)")
-      .eq("league_id", id)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("matches")
-      .select("id, match_date, stat_submissions(count)")
-      .eq("league_id", id)
-      .order("match_date", { ascending: false }),
-  ]);
+  const [leagueResult, membershipResult, membersResult, matchesResult, leaderboardResult] =
+    await Promise.all([
+      supabase
+        .from("leagues")
+        .select("id, name, status, invite_code, created_by, created_at")
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("league_memberships")
+        .select("role")
+        .eq("league_id", id)
+        .eq("user_id", data.user.id)
+        .single(),
+      supabase
+        .from("league_memberships")
+        .select("id, user_id, role, created_at, profiles(name, email, avatar_url)")
+        .eq("league_id", id)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("matches")
+        .select("id, match_date, stat_submissions(count)")
+        .eq("league_id", id)
+        .order("match_date", { ascending: false }),
+      supabase
+        .from("league_leaderboard")
+        .select(
+          "user_id, name, avatar_url, matches_played, goals, assists, wins, losses, draws, total_points, final_rating, mvp_count",
+        )
+        .eq("league_id", id),
+    ]);
 
   const league = leagueResult.data;
   const membership = membershipResult.data;
@@ -63,6 +72,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
     match_date: m.match_date,
     submission_count: (m.stat_submissions as unknown as { count: number }[])[0]?.count ?? 0,
   })) as MatchSummary[];
+  const leaderboard = (leaderboardResult.data ?? []) as unknown as LeaderboardEntry[];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -109,6 +119,16 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
 
         <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:100ms]">
           <CardContent className="py-5">
+            <div className="mb-4 flex items-center gap-2">
+              <Trophy className="size-4 text-amber-500" />
+              <p className="text-sm font-medium text-foreground">Leaderboard</p>
+            </div>
+            <LeaderboardSection entries={leaderboard} currentUserId={data.user.id} />
+          </CardContent>
+        </Card>
+
+        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:150ms]">
+          <CardContent className="py-5">
             <MatchesSection
               leagueId={id}
               matches={matches}
@@ -118,7 +138,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
           </CardContent>
         </Card>
 
-        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:150ms]">
+        <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:200ms]">
           <CardContent className="py-5">
             <div className="mb-4 flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
@@ -137,7 +157,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         </Card>
 
         {isAdmin && (
-          <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:200ms]">
+          <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:250ms]">
             <CardContent className="py-5">
               <p className="mb-4 text-sm font-medium text-foreground">League settings</p>
               <LeagueSettingsPanel leagueId={id} status={league.status} />
