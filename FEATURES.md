@@ -60,15 +60,15 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 
 ## 6. Stat Submission & Approval
 
-- [ ] Player: submit own stats for a match (goals, assists, result) — one per player per match
-- [ ] Player: edit pending submission
-- [ ] Player: request edit on approved submission (reopens to pending)
-- [ ] Admin: create submission for any player (auto-approved)
-- [ ] Admin: approve submission
-- [ ] Admin: reject submission (with required rejection reason)
-- [ ] Admin: directly edit/revert approved submission (no re-approval needed)
-- [ ] Pending-approvals queue/view for admins
-- [ ] Validation: no duplicates, no negative values, valid result enum
+- [x] Player: submit own stats for a match (goals, assists, result) — one per player per match
+- [x] Player: edit pending submission
+- [x] Player: request edit on approved submission (reopens to pending)
+- [x] Admin: create submission for any player (auto-approved)
+- [x] Admin: approve submission
+- [x] Admin: reject submission (with required rejection reason)
+- [x] Admin: directly edit/revert approved submission (no re-approval needed)
+- [x] Pending-approvals queue/view for admins
+- [x] Validation: no duplicates, no negative values, valid result enum
 
 ## 7. Leaderboard & Stats
 
