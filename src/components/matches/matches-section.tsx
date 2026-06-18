@@ -14,6 +14,7 @@ import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/matc
 export interface MatchSummary {
   id: string;
   match_date: string;
+  submission_count?: number;
 }
 
 interface MatchesSectionProps {
@@ -114,7 +115,14 @@ export function MatchesSection({ leagueId, matches, isAdmin, isActive }: Matches
                 className="flex items-center justify-between gap-4 py-3 text-sm hover:text-foreground text-foreground/80 transition-colors"
               >
                 <span className="font-medium">{formatMatchDate(match.match_date)}</span>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                <div className="flex shrink-0 items-center gap-2">
+                  {match.submission_count != null && match.submission_count > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      {match.submission_count} {match.submission_count === 1 ? "submission" : "submissions"}
+                    </span>
+                  )}
+                  <ChevronRight className="size-4 text-muted-foreground" />
+                </div>
               </Link>
             </li>
           ))}
