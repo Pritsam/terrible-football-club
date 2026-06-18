@@ -1,9 +1,11 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Shield, Users } from "lucide-react";
+import { ArrowLeft, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { MatchActions } from "@/components/matches/match-actions";
+import { SubmissionsSection } from "@/components/submissions/submissions-section";
+import type { Submission, MemberProfile } from "@/components/submissions/submissions-section";
 import { createClient } from "@/lib/supabase/server";
 
 interface MatchPageProps {
@@ -30,25 +32,31 @@ export default async function MatchPage({ params }: MatchPageProps) {
     redirect("/login");
   }
 
-  const [leagueResult, membershipResult, matchResult] = await Promise.all([
-    supabase
-      .from("leagues")
-      .select("id, name, status")
-      .eq("id", leagueId)
-      .single(),
-    supabase
-      .from("league_memberships")
-      .select("role")
-      .eq("league_id", leagueId)
-      .eq("user_id", authData.user.id)
-      .single(),
-    supabase
-      .from("matches")
-      .select("id, match_date, created_at")
-      .eq("id", matchId)
-      .eq("league_id", leagueId)
-      .single(),
-  ]);
+  const [leagueResult, membershipResult, matchResult, submissionsResult, membersResult] =
+    await Promise.all([
+      supabase.from("leagues").select("id, name, status").eq("id", leagueId).single(),
+      supabase
+        .from("league_memberships")
+        .select("role")
+        .eq("league_id", leagueId)
+        .eq("user_id", authData.user.id)
+        .single(),
+      supabase
+        .from("matches")
+        .select("id, match_date, created_at")
+        .eq("id", matchId)
+        .eq("league_id", leagueId)
+        .single(),
+      supabase
+        .from("stat_submissions")
+        .select("id, player_id, submitted_by, goals, assists, result, status, rejection_reason, profiles!player_id(name, email)")
+        .eq("match_id", matchId)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("league_memberships")
+        .select("user_id, profiles(name, email)")
+        .eq("league_id", leagueId),
+    ]);
 
   const league = leagueResult.data;
   const membership = membershipResult.data;
@@ -60,6 +68,9 @@ export default async function MatchPage({ params }: MatchPageProps) {
 
   const isAdmin = membership.role === "admin";
   const isActive = league.status === "active";
+
+  const submissions = (submissionsResult.data ?? []) as unknown as Submission[];
+  const members = (membersResult.data ?? []) as unknown as MemberProfile[];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -102,18 +113,16 @@ export default async function MatchPage({ params }: MatchPageProps) {
         </div>
 
         <Card className="animate-fade-up bg-card/80 ring-foreground/10 [animation-delay:100ms]">
-          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Users className="size-6" />
-            </div>
-            <div>
-              <p className="font-heading text-lg tracking-wide text-foreground">
-                Stat submissions coming soon
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Players will be able to submit goals, assists, and match results here.
-              </p>
-            </div>
+          <CardContent className="py-5">
+            <SubmissionsSection
+              matchId={matchId}
+              leagueId={leagueId}
+              currentUserId={authData.user.id}
+              isAdmin={isAdmin}
+              isActive={isActive}
+              submissions={submissions}
+              members={members}
+            />
           </CardContent>
         </Card>
 

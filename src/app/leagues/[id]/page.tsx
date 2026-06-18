@@ -44,7 +44,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
       .order("created_at", { ascending: true }),
     supabase
       .from("matches")
-      .select("id, match_date")
+      .select("id, match_date, stat_submissions(count)")
       .eq("league_id", id)
       .order("match_date", { ascending: false }),
   ]);
@@ -58,7 +58,11 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
 
   const isAdmin = membership.role === "admin";
   const members = (membersResult.data ?? []) as unknown as LeagueMember[];
-  const matches = (matchesResult.data ?? []) as MatchSummary[];
+  const matches = (matchesResult.data ?? []).map((m) => ({
+    id: m.id,
+    match_date: m.match_date,
+    submission_count: (m.stat_submissions as unknown as { count: number }[])[0]?.count ?? 0,
+  })) as MatchSummary[];
 
   return (
     <div className="flex min-h-screen flex-col">
