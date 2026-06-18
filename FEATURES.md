@@ -79,12 +79,12 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 
 ## 8. Testing
 
-- [ ] Vitest + React Testing Library setup
-- [ ] Unit tests for point system / final rating / MVP logic
-- [ ] Unit tests for validation schemas
-- [ ] Playwright setup
-- [ ] E2E: login/signup (done ad-hoc, needs formalizing)
-- [ ] E2E: league create/join, match + submission flow, leaderboard
+- [x] Vitest + React Testing Library setup
+- [x] Unit tests for point system / final rating / MVP logic
+- [x] Unit tests for validation schemas
+- [x] Playwright setup
+- [x] E2E: login/signup (done ad-hoc, needs formalizing)
+- [x] E2E: league create/join, match + submission flow, leaderboard
 
 ## 9. Deployment
 
