@@ -9,7 +9,7 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 - [x] shadcn/ui (Nova preset) installed
 - [x] Zod + React Hook Form installed
 - [x] Pitch-themed design system (`globals.css`, fonts, backdrop)
-- [ ] Docker / Docker Compose for local dev
+- [x] Docker / Docker Compose for local dev
 
 ## 2. Supabase Setup
 
@@ -88,9 +88,9 @@ Step-by-step build plan for the Fantasy League Tracking System (V1), derived fro
 
 ## 9. Deployment
 
-- [ ] Vercel project configured
-- [ ] Production Supabase env vars wired to Vercel
-- [ ] Production build verified (`pnpm build`)
+- [ ] Vercel project configured (connect GitHub repo in Vercel dashboard)
+- [ ] Production Supabase env vars wired to Vercel (add NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SITE_URL to Vercel project settings)
+- [x] Production build verified (`pnpm build`)
 
 ---
 
