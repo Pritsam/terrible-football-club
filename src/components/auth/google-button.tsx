@@ -1,27 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field";
-import { createClient } from "@/lib/supabase/client";
 
 export function GoogleButton() {
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
 
   const handleClick = () => {
-    setError(null);
-    startTransition(async () => {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) {
-        setError(error.message);
-      }
+    startTransition(() => {
+      window.location.href = "/api/auth/google";
     });
   };
 
@@ -37,7 +24,6 @@ export function GoogleButton() {
         <GoogleIcon className="size-4" />
         {isPending ? "Redirecting…" : "Continue with Google"}
       </Button>
-      {error ? <FieldError>{error}</FieldError> : null}
     </div>
   );
 }

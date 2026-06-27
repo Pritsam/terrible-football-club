@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Response } from "@playwright/test";
 
 const TEST_EMAIL = "test@tfc.com";
 const TEST_PASSWORD = "123456";
@@ -59,5 +59,46 @@ test.describe("Authentication", () => {
 
     await page.getByRole("button", { name: /sign out/i }).click();
     await expect(page).toHaveURL(/\/login/, { timeout: 5000 });
+  });
+
+  test("Google OAuth button initiates PKCE flow via route handler", async ({ page }) => {
+    await page.goto("/login");
+    await expect(
+      page.getByRole("button", { name: /continue with google/i }),
+    ).toBeVisible();
+
+    // Capture the /api/auth/google response before the browser follows the redirect chain
+    let oauthRouteResponse: Response | null = null;
+    page.on("response", (response) => {
+      if (response.url().includes("/api/auth/google")) {
+        oauthRouteResponse = response;
+      }
+    });
+
+    // Click and wait for navigation away from the login page toward Google OAuth
+    await Promise.all([
+      page.waitForURL(
+        (url) =>
+          url.hostname.includes("accounts.google.com") ||
+          url.hostname.includes("supabase.co"),
+        { timeout: 10000 },
+      ),
+      page.getByRole("button", { name: /continue with google/i }).click(),
+    ]);
+
+    // Route handler must have responded with a redirect (307)
+    expect(oauthRouteResponse).not.toBeNull();
+    expect((oauthRouteResponse as Response).status()).toBe(307);
+
+    // The PKCE code verifier cookie must be set so the callback can exchange the code
+    const cookies = await page.context().cookies();
+    const pkceVerifierCookie = cookies.find((c) =>
+      c.name.includes("auth-token-code-verifier"),
+    );
+    expect(pkceVerifierCookie).toBeDefined();
+    expect(pkceVerifierCookie?.value).toBeTruthy();
+
+    // The redirect destination must be Google's OAuth endpoint (via Supabase)
+    expect(page.url()).toContain("accounts.google.com");
   });
 });
