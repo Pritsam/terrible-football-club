@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema, signupSchema } from "@/lib/validations/auth";
 
@@ -9,14 +8,6 @@ export type AuthActionResult =
   | { error: string }
   | { success: true }
   | undefined;
-
-async function siteUrl() {
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
-  }
-  const host = (await headers()).get("host");
-  return `http://${host}`;
-}
 
 export async function login(
   _prevState: AuthActionResult,
@@ -67,20 +58,6 @@ export async function signup(
   }
 
   return { success: true };
-}
-
-export async function signInWithGoogle(): Promise<AuthActionResult> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: `${await siteUrl()}/auth/callback` },
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  redirect(data.url);
 }
 
 export async function logout() {

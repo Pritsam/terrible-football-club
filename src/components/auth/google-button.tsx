@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
-import { signInWithGoogle } from "@/lib/auth/actions";
+import { createClient } from "@/lib/supabase/client";
 
 export function GoogleButton() {
   const [isPending, startTransition] = useTransition();
@@ -12,9 +12,15 @@ export function GoogleButton() {
   const handleClick = () => {
     setError(null);
     startTransition(async () => {
-      const result = await signInWithGoogle();
-      if (result && "error" in result) {
-        setError(result.error);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setError(error.message);
       }
     });
   };
