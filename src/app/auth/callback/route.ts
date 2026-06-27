@@ -6,21 +6,13 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
 
-  if (!code) {
-    const allParams = searchParams.toString();
-    return NextResponse.redirect(
-      `${origin}/login?error=no-code&params=${encodeURIComponent(allParams)}`,
-    );
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      return NextResponse.redirect(`${origin}${next}`);
+    }
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-  if (!error) {
-    return NextResponse.redirect(`${origin}${next}`);
-  }
-
-  return NextResponse.redirect(
-    `${origin}/login?error=exchange-failed&msg=${encodeURIComponent(error.message)}&code=${encodeURIComponent(error.code ?? "")}`,
-  );
+  return NextResponse.redirect(`${origin}/login?error=auth-callback-failed`);
 }
