@@ -53,6 +53,7 @@ This project runs on **Next.js 16**, which is newer than your training data and 
 - Think through the implementation before generating code, and follow existing project conventions/folder structure once established.
 - Generate production-ready TypeScript; include error handling, loading, and empty states when building features.
 - Check `PROGRESS.md` for current status — what's done and what's queued next.
+- Always update the `ARCHITECTURE.md` after any changes to the architecture of the application.
 
 ## Planning workflow
 
