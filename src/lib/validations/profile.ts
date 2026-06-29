@@ -7,10 +7,9 @@ export const updateProfileSchema = z.object({
     .max(100, "Name must be 100 characters or fewer"),
   avatar_url: z
     .string()
-    .url("Must be a valid URL")
     .max(2048, "URL is too long")
-    .or(z.literal(""))
-    .optional(),
+    .optional()
+    .or(z.literal("")),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
